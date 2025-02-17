@@ -1,6 +1,8 @@
 # csv-yaml
 a script to convert csv to yaml files using PyYaml for use in Jekyll templating among other things
 
+Updates: modified convert3.py to convert each row of csv to yaml
+
 ### Need
 - [PyYaml](http://pyyaml.org/wiki/PyYAMLDocumentation)
 - I am also using mac. (if that makes a difference (I never tested on windows))
