@@ -11,13 +11,16 @@ root = os.getcwd()
 
 # takes a csvFile name and output file name/path
 def csvToYaml(csvFile, output):
-    stream = open(output, 'w',encoding="utf-8")
     # https://stackoverflow.com/questions/18897029/read-csv-file-from-url-into-python-3-x-csv-error-iterator-should-return-str
     # need to decode bytes
+    os.makedirs(output, exist_ok=True)
     csvOpen = csv.reader(codecs.iterdecode(csvFile, 'utf-8'))
     keys = next(csvOpen)
-    for row in csvOpen:
-        yaml.dump([dict(zip(keys, row))], stream, default_flow_style=False, allow_unicode=True)
+    csv_filename = os.path.splitext(os.path.basename(csvFile.name))[0]
+    for i, row in enumerate(csvOpen):
+        output_file = os.path.join(output, f'{csv_filename}_row_{i+1}.yml')
+        with open(output_file, 'w', encoding="utf-8") as stream:
+            yaml.dump([dict(zip(keys, row))], stream, default_flow_style=False, allow_unicode=True)
 
 # converts single url file
 def urlCSV(url, output=None):
@@ -26,18 +29,18 @@ def urlCSV(url, output=None):
     csvToYaml(csvFile, output)
 
 # converts all csv file in this folder
-def localCSV(folder=root):
+def localCSV(folder, output):
+    os.makedirs(output, exist_ok=True)
     # print folder
     for f in os.listdir(folder):
         if f.endswith('.csv'):
             csvFile = os.path.join(folder, f)
-            output = os.path.join(folder, f.replace('.csv','.yml'))
-            print(output)
-            singleCSV(csvFile, output)
+            with open(csvFile, "rb") as csv_file:
+                csvToYaml(csv_file, output) 
 
 # converts only one csv file
-def singleCSV(csvFile, output=None):
-    output = output if output else root+'/'+(csvFile.split('/')[-1].replace('.csv','.yml'))
+def singleCSV(csvFile, output):
+    os.makedirs(output, exist_ok=True)
     with open(csvFile, 'rb') as csvFile:
         csvToYaml(csvFile, output)
 
@@ -77,9 +80,10 @@ def main():
         urlCSV(csvFile, output)
         exit()
     elif folder:
-        localCSV(csvFile)
+        localCSV(csvFile, output)
         exit()
-    singleCSV(csvFile, output)
+    else:
+        singleCSV(csvFile, output)
 
 if __name__ in ("__main__", "csvyml"):
     main()
